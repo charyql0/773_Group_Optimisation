@@ -76,4 +76,11 @@ fprintf('\nNote: createSurrogate takes angle ranges in degrees, but fx expects r
 
 % #5: briefly comment on what you observe
 
-% 
+% Between -10° and 12°, where both surrogates are trained, the two models 
+% produce almost identical results, indicating reliable interpolation. 
+% Outside this range, the results begin to diverge, as the default 
+% surrogate is extrapolating while the wider-range surrogate remains within 
+% its training bounds up to -15° and 15°. Beyond -15° and 15°, both models 
+% are extrapolating and therefore become less reliable. This demonstrates 
+% that surrogate accuracy strongly depends on the range over which it is 
+% constructed.
