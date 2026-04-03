@@ -19,9 +19,6 @@ weighted_power = 0.0;
 
 Vu_before = Vu;
 
-% Test lines
-fprintf('--- turbineObj breakdown ---\n');
-
 for i = 1:length(wind_speeds)
     Vu = wind_speeds(i);
     % TODO:
@@ -44,21 +41,14 @@ for i = 1:length(wind_speeds)
         % Reduce linearly from full contribution at 200 RPM to 0 at 250 RPM
         scale = (250 - rpm) / 50;
         contribution = power_extracted * scale;
-    else
-        contribution = 0;
-    end     
+    
+
 
     % 3. add the weighted contribution to weighted_power
-    weighted_power = weighted_power + contribution * weightings(i);
-    
-    % Test lines
-    fprintf('Vu = %.1f | power = %.6f | rpm = %.6f | contribution = %.6f | weighted term = %.6f\n', ...
-    Vu, power_extracted, rpm, contribution, contribution* weightings(i));
 end
 
 Vu = Vu_before;
 obj = -weighted_power;
 
-% error('turbineObj:NotImplemented', 'Complete turbineObj.m before using it in optimisation.');
+error('turbineObj:NotImplemented', 'Complete turbineObj.m before using it in optimisation.');
 end
-

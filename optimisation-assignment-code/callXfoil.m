@@ -28,7 +28,9 @@ function [pol, foil] = callXfoil(coord, alpha, Re, Mach)
 % Edited / fixed by Nick Wright 2025/2026
 
 % Add xfoil subdirectory to path
+
 xfoilDir = fullfile(fileparts(mfilename('fullpath')), 'XFOIL_MAC_STUDENT_PACKAGE', 'Xfoil-for-Mac-main');
+
 addpath(xfoilDir);
 
 if isa(coord, 'char') == true && strcmp(coord(1:4), 'NACA') == true
