@@ -17,8 +17,49 @@ function [result, x] = optimiseTurbineGivenShape(fx, num_blades)
 % You may then build sensible bounds around that reference, or use bounds
 % based on a BEM design from your previous assignment.
 
+% Defines required global vars.
+global Vu rho eta nSections clearance B R Curve
+
+B = num_blades;
+
+% set bounds
+chord_ref = linspace(0.30, 0.14, nSections);
+beta_ref  = linspace(40, 14, nSections) * pi/180;
+
+% proportional chord bounds - scales naturally across sections
+lb_chord = chord_ref * 0.3;
+ub_chord = chord_ref * 1.7;
+
+% absolute beta bounds - wide enough for camber differences between airfoils
+lb_beta = beta_ref - 20*pi/180;
+ub_beta = beta_ref + 20*pi/180;
+
+lb = [lb_chord, lb_beta];
+ub = [ub_chord, ub_beta];
+
+% set objective function
+objective = @(design) turbineObj(design, fx);
+
+% set options and run ga
+options = optimoptions('ga', ...
+    'PopulationSize', 30, ...
+    'MaxGenerations', 50, ...
+    'MaxStallGenerations', 15, ...
+    'FunctionTolerance', 1e-4, ...
+    'MaxTime', 60, ...
+    'Display', 'iter', ...
+    'PlotFcn', {@gaplotbestf, @gaplotbestindiv});
+
+nvars = 2 * nSections;
+x = ga(objective, nvars, [], [], [], [], lb, ub, [], options);
+
+chord_opt = x(1:nSections);
+beta_opt  = x(nSections+1:end);
+
 result = struct();
-x = [];
+result.chord     = chord_opt;
+result.beta      = beta_opt;
+result.power     = -turbineObj(x, fx);
 
 % TODO: implement this file.
 % Some groups may find it helpful to:
@@ -26,6 +67,6 @@ x = [];
 %   - seed the initial population near a smooth reference design
 %   - tighten bounds if completely random designs behave badly
 
-error('optimiseTurbineGivenShape:NotImplemented', ...
-    'Complete optimiseTurbineGivenShape.m before using it.');
+% error('optimiseTurbineGivenShape:NotImplemented', ...
+%     'Complete optimiseTurbineGivenShape.m before using it.');
 end
