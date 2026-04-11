@@ -92,7 +92,7 @@ while lambda_diff > tolerance
 
         inner_iter = inner_iter + 1;
 
-        if inner_iter > 1000
+        if inner_iter > 5000
             break
         end
     end
@@ -124,7 +124,7 @@ while lambda_diff > tolerance
 
     iter = iter + 1;
 
-    if iter > 1000
+    if iter > 5000
         break
     end
 end
