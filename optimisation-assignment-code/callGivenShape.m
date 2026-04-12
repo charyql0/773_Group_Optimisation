@@ -11,6 +11,8 @@ B = 5;
 num_blades = 5;
 airfoil = 'NACA2412';
 
+% testing evaluateTurbine
+
 % [fx, success] = createSurrogate(airfoil, false, -10:1:12);
 % [result, x] = optimiseTurbineGivenShape(fx, num_blades);
 % disp(result)
