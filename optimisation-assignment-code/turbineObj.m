@@ -20,7 +20,7 @@ weighted_power = 0.0;
 Vu_before = Vu;
 
 % Test lines
-fprintf('--- turbineObj breakdown ---\n');
+%fprintf('--- turbineObj breakdown ---\n');
 
 for i = 1:length(wind_speeds)
     Vu = wind_speeds(i);
@@ -52,8 +52,8 @@ for i = 1:length(wind_speeds)
     weighted_power = weighted_power + contribution * weightings(i);
     
     % Test lines
-    fprintf('Vu = %.1f | power = %.6f | rpm = %.6f | contribution = %.6f | weighted term = %.6f\n', ...
-    Vu, power_extracted, rpm, contribution, contribution* weightings(i));
+    %fprintf('Vu = %.1f | power = %.6f | rpm = %.6f | contribution = %.6f | weighted term = %.6f\n', ...
+    % Vu, power_extracted, rpm, contribution, contribution* weightings(i));
 end
 
 Vu = Vu_before;

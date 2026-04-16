@@ -31,6 +31,8 @@ lambda_diff = 1;
 old_a = 0.33 * ones(1,nSections);
 old_a_prime = 0 * ones(1,nSections);
 
+iter = 0;
+
 % outer loop calculates new speed until converges
 while lambda_diff > tolerance
     turbine_spin = (Vu * lambda) / R;
@@ -40,6 +42,8 @@ while lambda_diff > tolerance
   
     % loop from here while a and a_prime not converged
     inner_convergence = false;
+    inner_iter = 0;
+
     while ~inner_convergence
       
         % local wind angle
@@ -56,7 +60,7 @@ while lambda_diff > tolerance
         
         % solidity, can't be bigger than 1
         solidity = (B .* c) ./ (2 .* pi .* r);
-        %solidity = min(solidity, 1);
+        solidity = min(solidity, 1);
         
         % rotate lift and drag
         C_n = Cl .* cos(phi) + Cd .* sin(phi);
@@ -85,6 +89,12 @@ while lambda_diff > tolerance
 
         old_a = updated_a;
         old_a_prime = max(updated_a_prime, -1 + 1e-6);
+
+        inner_iter = inner_iter + 1;
+
+        if inner_iter > 5000
+            break
+        end
     end
 
     % final converged a and a_prime
@@ -111,6 +121,12 @@ while lambda_diff > tolerance
 
     lambda_diff = abs(new_lambda - lambda);
     lambda = lambda + update_param .* (new_lambda - lambda);
+
+    iter = iter + 1;
+
+    if iter > 5000
+        break
+    end
 end
 
 % redo final calculation with final lambda
