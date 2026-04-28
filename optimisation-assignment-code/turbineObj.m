@@ -56,8 +56,22 @@ for i = 1:length(wind_speeds)
     % Vu, power_extracted, rpm, contribution, contribution* weightings(i));
 end
 
+% after calculating weighted_power, before returning obj
+
+% smoothness penalty - penalise large changes between adjacent sections
+chord_penalty = sum(diff(chord).^2);
+chord_penalty2 = sum(diff(diff(chord)).^2); 
+beta_penalty  = sum(diff(beta).^2);
+
+% scale factors control how strongly smoothness is enforced
+lambda_chord1 = 100;
+lambda_chord2 = 70;
+lambda_beta  = 30;
+
+smoothness_penalty = lambda_chord1 * chord_penalty + lambda_chord2 * chord_penalty2 + lambda_beta * beta_penalty;
+
 Vu = Vu_before;
-obj = -weighted_power;
+obj = -weighted_power + smoothness_penalty;
 
 % error('turbineObj:NotImplemented', 'Complete turbineObj.m before using it in optimisation.');
 end
