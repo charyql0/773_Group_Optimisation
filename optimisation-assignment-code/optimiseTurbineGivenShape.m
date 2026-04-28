@@ -21,18 +21,23 @@ function [result, x] = optimiseTurbineGivenShape(fx, num_blades)
 global Vu rho eta nSections clearance B R Curve
 
 B = num_blades;
+r = linspace(clearance, R, nSections);
+
+% solidity limit: sigma = B*c / (2*pi*r) <= 0.15
+sigma_max = 0.9;
+ub_chord_solidity = (sigma_max * 2 * pi .* r) / B;
 
 % set bounds
 chord_ref = linspace(0.30, 0.14, nSections);
 beta_ref  = linspace(40, 14, nSections) * pi/180;
 
 % proportional chord bounds - scales naturally across sections
-lb_chord = chord_ref * 0.3;
-ub_chord = chord_ref * 1.7;
+lb_chord = max(chord_ref * 0.3, 0.08 * ones(1, nSections)); 
+ub_chord = min(chord_ref * 1.7, ub_chord_solidity);
 
 % absolute beta bounds - wide enough for camber differences between airfoils
-lb_beta = beta_ref - 20*pi/180;
-ub_beta = beta_ref + 20*pi/180;
+lb_beta = beta_ref - 10*pi/180;
+ub_beta = beta_ref + 10*pi/180;
 
 lb = [lb_chord, lb_beta];
 ub = [ub_chord, ub_beta];
@@ -42,11 +47,10 @@ objective = @(design) turbineObj(design, fx);
 
 % set options and run ga
 options = optimoptions('ga', ...
-    'PopulationSize', 30, ...
-    'MaxGenerations', 10, ...
-    'MaxStallGenerations', 5, ...
-    'FunctionTolerance', 1e-2, ...
-    'MaxTime', 60, ...
+    'PopulationSize', 50, ...
+    'MaxGenerations', 250, ...
+    'MaxStallGenerations', 10, ...
+    'FunctionTolerance', 1e-6, ...
     'Display', 'iter', ...
     'PlotFcn', {@gaplotbestf, @gaplotbestindiv});
 

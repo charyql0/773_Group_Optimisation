@@ -5,10 +5,10 @@ Curve = @generator;
 rho = 1.29;
 eta = 0.6;
 nSections = 15;
-clearance = 0.1;
+clearance = 0.15;
 Re = 100000;
-B = 5;
-num_blades = 5;
+B = 3;
+num_blades = 3;
 airfoil = 'NACA2412';
 
 % testing evaluateTurbine
@@ -84,9 +84,9 @@ airfoil = 'NACA2412';
 
 %% Test GA
 
-airfoils = {'NACA0012', 'NACA2412'};
+airfoils = {'NACA2412'};
 
-nRuns = 3;  % number of times to run GA per airfoil
+nRuns = 1;  % number of times to run GA per airfoil
 
 for a = 1:numel(airfoils)
     airfoil = airfoils{a};
@@ -107,6 +107,10 @@ for a = 1:numel(airfoils)
         tic
         try
             [result, x] = optimiseTurbineGivenShape(fx, num_blades);
+            disp(result.chord)
+            disp(result.beta)
+            disp(result.power)
+
             runtimes(i) = toc;
 
             % evaluate the result directly to get power
@@ -126,6 +130,7 @@ for a = 1:numel(airfoils)
         end
     end
 
+
     % summary for this airfoil
     validPowers = powers(~isnan(powers));
     fprintf('\n  --- Summary for %s ---\n', airfoil);
@@ -137,6 +142,44 @@ for a = 1:numel(airfoils)
     fprintf('  Max runtime     : %.1f s\n', max(runtimes));
 end
 
+chord = result.chord;
+beta  = result.beta;
+sections = 1:nSections;
+r = linspace(clearance, R, nSections);
+
+solidity = (B .* chord) ./ (2 .* pi .* r);
+
+% smoothness penalty - penalise large changes between adjacent sections
+chord_penalty = sum(diff(chord).^2);
+chord_penalty2 = sum(diff(diff(chord)).^2); 
+beta_penalty  = sum(diff(beta).^2);
+
+% scale factors control how strongly smoothness is enforced
+% start small so penalty doesn't dominate the power objective
+lambda_chord1 = 100;
+lambda_chord2 = 70;
+lambda_beta  = 30;
+
+smoothness_penalty = lambda_chord1 * chord_penalty + lambda_chord2 * chord_penalty2 + lambda_beta * beta_penalty;
+
+weighted_power = result.power + smoothness_penalty;
+disp(weighted_power)
+
+figure;
+
+subplot(2,1,1)
+plot(sections, chord, '-o')
+xlabel('Section')
+ylabel('Chord (m)')
+title('Chord Distribution')
+grid on
+
+subplot(2,1,2)
+plot(sections, beta * 180/pi, '-o')
+xlabel('Section')
+ylabel('Beta (degrees)')
+title('Beta Distribution')
+grid on
 
 %% Generator function
 
